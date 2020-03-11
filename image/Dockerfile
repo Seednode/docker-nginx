@@ -19,5 +19,5 @@ RUN adduser www-data -D -H
 # expose nginx port
 EXPOSE 80
 
-# run nginx and php in supervisord
+# run nginx
 CMD ["/usr/sbin/nginx","-g","daemon off;"]
