@@ -4,11 +4,8 @@ FROM alpine:latest
 # determine nginx version to use
 ARG version
 
-# install php and supervisor
-RUN apk --no-cache add pcre supervisor
-
-# configure supervisord
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# install pcre library
+RUN apk --no-cache add pcre
 
 # copy nginx binary
 COPY nginx /usr/sbin/nginx
@@ -23,4 +20,4 @@ RUN adduser www-data -D -H
 EXPOSE 80
 
 # run nginx and php in supervisord
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/usr/sbin/nginx","-g","daemon off;"]
