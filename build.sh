@@ -20,7 +20,7 @@ version="$1"
 basedir="$(pwd)"
 
 # build docker and copy build artifacts to volume mount
-docker run -it --rm -e "NGINX=$version" -v "$basedir"/artifacts:/build alpine:latest /bin/ash -c "`cat ./build-nginx-docker.sh`"
+docker run -it --rm -e "NGINX=$version" -v "$basedir"/artifacts:/build alpine:latest /bin/ash -c "`cat ./scripts/build-nginx-docker.sh`"
 
 # copy nginx binary to image build directory
 cp "$basedir"/artifacts/nginx-"$version" "$basedir"/image/nginx
