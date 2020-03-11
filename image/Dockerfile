@@ -20,4 +20,4 @@ RUN adduser www-data -D -H
 EXPOSE 80
 
 # run nginx
-CMD ["/usr/sbin/nginx","-g","daemon off;"]
+ENTRYPOINT ["/usr/sbin/nginx","-g","daemon off;"]
