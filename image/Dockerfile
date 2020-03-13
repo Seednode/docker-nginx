@@ -4,9 +4,6 @@ FROM alpine:latest
 # determine nginx version to use
 ARG version
 
-# install pcre library
-RUN apk --no-cache add pcre
-
 # copy nginx binary
 COPY nginx /usr/sbin/nginx
 

@@ -21,7 +21,21 @@ function cleanup {
 trap cleanup EXIT
 
 # if apk is installed, install the alpine dependencies
-apk --no-cache add gcc g++ cmake git gnupg pcre-dev zlib-dev git curl make linux-headers
+apk --no-cache add gcc g++ git curl make linux-headers
+
+# fetch the zlib library
+ZLIB="1.2.11"
+mkdir -p "$BUILDROOT/zlib"
+cd "$BUILDROOT/zlib"
+curl -L -O "https://www.zlib.net/zlib-$ZLIB.tar.gz"
+tar xzf "$BUILDROOT/zlib/zlib-$ZLIB.tar.gz"
+
+# fetch the pcre library
+PCRE="8.44"
+mkdir -p "$BUILDROOT/pcre"
+cd "$BUILDROOT/pcre"
+curl -L -O "https://cfhcable.dl.sourceforge.net/project/pcre/pcre/$PCRE/pcre-$PCRE.tar.gz"
+tar xzf "$BUILDROOT/pcre/pcre-$PCRE.tar.gz"
 
 # fetch the desired version of nginx
 mkdir -p "$BUILDROOT/nginx"
@@ -29,16 +43,6 @@ cd "$BUILDROOT"/nginx
 curl -L -O "http://nginx.org/download/nginx-$NGINX.tar.gz"
 tar xzf "nginx-$NGINX.tar.gz"
 cd "$BUILDROOT/nginx/nginx-$NGINX"
-
-# change the nginx server name strings
-sed -i "s#ngx_http_server_string\[\].*#ngx_http_server_string\[\] = \"Server: $SERVER\" CRLF;#" $BUILDROOT/nginx/nginx-$NGINX/src/http/ngx_http_header_filter_module.c
-sed -i "s#ngx_http_server_full_string\[\].*#ngx_http_server_full_string\[\] = \"Server: $SERVER $VERSION\" CRLF;#" $BUILDROOT/nginx/nginx-$NGINX/src/http/ngx_http_header_filter_module.c
-sed -i "s#ngx_http_server_build_string\[\].*#ngx_http_server_build_string\[\] = \"Server: $SERVER $VERSION\" CRLF;#" $BUILDROOT/nginx/nginx-$NGINX/src/http/ngx_http_header_filter_module.c
-
-# remove the default nginx server header
-sed -i 's#"nginx/"#"-/"#g' $BUILDROOT/nginx/nginx-$NGINX/src/core/nginx.h
-sed -i 's#r->headers_out.server == NULL#0#g' $BUILDROOT/nginx/nginx-$NGINX/src/http/v2/ngx_http_v2_filter_module.c
-sed -i 's#<hr><center>nginx</center>##g' $BUILDROOT/nginx/nginx-$NGINX/src/http/ngx_http_special_response.c
 
 # fetch the fancy-index module
 git clone https://github.com/aperezdc/ngx-fancyindex.git "$BUILDROOT"/ngx-fancyindex
@@ -58,15 +62,18 @@ git clone https://github.com/aperezdc/ngx-fancyindex.git "$BUILDROOT"/ngx-fancyi
 	--group=www-data \
 	--with-threads \
 	--with-file-aio \
-	--with-pcre \
+	--with-pcre="$BUILDROOT/pcre/pcre-$PCRE" \
 	--with-pcre-jit \
-	--without-http_gzip_module \
+	--with-zlib="$BUILDROOT/zlib/zlib-$ZLIB" \
+	--with-http_addition_module \
+	--with-http_gunzip_module \
+	--with-http_gzip_static_module \
 	--without-select_module \
 	--without-poll_module \
 	--without-mail_pop3_module \
 	--without-mail_imap_module \
 	--without-mail_smtp_module \
-	--with-cc-opt="-static -static-libgcc -g -O2 -fPIE -fstack-protector-all -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security"
+	--with-cc-opt="-Wl,--gc-sections -static -static-libgcc -O2 -ffunction-sections -fdata-sections -fPIE -fstack-protector-all -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security"
 
 # build nginx
 make -j"$core_count"
