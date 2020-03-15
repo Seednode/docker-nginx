@@ -23,13 +23,6 @@ trap cleanup EXIT
 # if apk is installed, install the alpine dependencies
 apk --no-cache add gcc g++ git curl make linux-headers
 
-# fetch the zlib library
-ZLIB="1.2.11"
-mkdir -p "$BUILDROOT/zlib"
-cd "$BUILDROOT/zlib"
-curl -L -O "https://www.zlib.net/zlib-$ZLIB.tar.gz"
-tar xzf "$BUILDROOT/zlib/zlib-$ZLIB.tar.gz"
-
 # fetch the pcre library
 PCRE="8.44"
 mkdir -p "$BUILDROOT/pcre"
@@ -64,10 +57,8 @@ git clone https://github.com/aperezdc/ngx-fancyindex.git "$BUILDROOT"/ngx-fancyi
 	--with-file-aio \
 	--with-pcre="$BUILDROOT/pcre/pcre-$PCRE" \
 	--with-pcre-jit \
-	--with-zlib="$BUILDROOT/zlib/zlib-$ZLIB" \
 	--with-http_addition_module \
-	--with-http_gunzip_module \
-	--with-http_gzip_static_module \
+	--without-http_gzip_module \
 	--without-select_module \
 	--without-poll_module \
 	--without-mail_pop3_module \
