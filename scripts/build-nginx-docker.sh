@@ -50,7 +50,8 @@ git clone https://github.com/aperezdc/ngx-fancyindex.git "$BUILDROOT"/ngx-fancyi
 	--http-log-path=/var/log/nginx/access.log \
 	--pid-path=/run/nginx.pid \
 	--lock-path=/run/lock/subsys/nginx \
-	--http-client-body-temp-path=/usr/share/nginx/tmp \
+	--http-client-body-temp-path=/tmp/nginx/client \
+        --http-proxy-temp-path=/tmp/nginx/proxy \
 	--user=www-data \
 	--group=www-data \
 	--with-threads \
@@ -58,6 +59,9 @@ git clone https://github.com/aperezdc/ngx-fancyindex.git "$BUILDROOT"/ngx-fancyi
 	--with-pcre="$BUILDROOT/pcre/pcre-$PCRE" \
 	--with-pcre-jit \
 	--with-http_addition_module \
+	--without-http_fastcgi_module \
+	--without-http_uwsgi_module \
+	--without-http_scgi_module \
 	--without-http_gzip_module \
 	--without-select_module \
 	--without-poll_module \
@@ -70,5 +74,5 @@ git clone https://github.com/aperezdc/ngx-fancyindex.git "$BUILDROOT"/ngx-fancyi
 make -j"$core_count"
 make install
 
-# copy the binary to the host volume
+# copy the nginx binary to the host volume
 cp /usr/sbin/nginx /build/nginx-"$NGINX"
