@@ -32,7 +32,7 @@ docker build --build-arg version="$version" -t docker.seedno.de/seednode/nginx:"
 rm "$basedir"/image/nginx
 
 # log in to docker registry
-pass show docker-credential-helpers/docker-pass-initialized-check && docker login docker.seedno.de
+#pass show docker-credential-helpers/docker-pass-initialized-check && docker login docker.seedno.de
 
 # push the image to registry
-docker push docker.seedno.de/seednode/nginx:"$version"
+#docker push docker.seedno.de/seednode/nginx:"$version"
