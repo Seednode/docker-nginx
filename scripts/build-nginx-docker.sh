@@ -1,5 +1,5 @@
 #!/usr/bin/env ash
-# a script to build nginx against openssl-dev on alpine linux for docker
+# a script to build nginx on alpine linux for docker
 # includes nginx fancyindex module
 
 # exit on error
