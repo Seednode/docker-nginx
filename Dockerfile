@@ -1,18 +1,21 @@
-# Multi-Stage Build File for dockerized nginx
+# multi-stage build for dockerized nginx
 
 # set up nginx build container
 FROM alpine:latest AS nginx
 RUN apk add gcc g++ git curl make linux-headers tar gzip
+
 # download pcre library
 WORKDIR /src/pcre
 ARG PCRE_VER="8.44"
 RUN curl -L -O "https://cfhcable.dl.sourceforge.net/project/pcre/pcre/$PCRE_VER/pcre-$PCRE_VER.tar.gz"
 RUN tar xzf "/src/pcre/pcre-$PCRE_VER.tar.gz"
+
 # download nginx source
 WORKDIR /src/nginx
 ARG NGINX_VER
 RUN curl -L -O "http://nginx.org/download/nginx-$NGINX_VER.tar.gz"
 RUN tar xzf "nginx-$NGINX_VER.tar.gz"
+
 # configure and build nginx
 WORKDIR /src/nginx/nginx-"$NGINX_VER"
 RUN ./configure --prefix=/usr/share/nginx \
@@ -47,6 +50,7 @@ RUN make install
 
 # set up the final container
 FROM alpine:latest
+
 # setup nginx folders and files
 RUN adduser www-data -D -H
 RUN mkdir -p /tmp/nginx/{client,proxy} && chown -R www-data:www-data /tmp/nginx/
@@ -54,6 +58,9 @@ RUN mkdir -p /var/log/nginx && chown -R www-data:www-data /var/log/nginx
 RUN mkdir -p /var/www/html && chown -R www-data:www-data /var/www/html
 RUN touch /run/nginx.pid && chown www-data:www-data /run/nginx.pid
 RUN mkdir -p /etc/nginx 
-# add nginx binaries and confs
+
+# add nginx binary
 COPY --from=nginx /usr/sbin/nginx /usr/sbin/nginx
+
+# configure entrypoint
 ENTRYPOINT ["/usr/sbin/nginx","-g","daemon off;"]
