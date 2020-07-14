@@ -7,29 +7,32 @@ set -o errexit
 # exit if required variables aren't set
 set -o nounset
 
+# if no registry is provided, tag image as "local" registry
+registry="${REGISTRY:-local}"
+
+# retrieve latest nginx version
+nginx_mainline="$(curl -s 'http://nginx.org/download/' | grep -oP 'href="nginx-\K[0-9]+\.[0-9]+\.[0-9]+' | sort -t. -rn -k1,1 -k2,2 -k3,3 | head -1)"
+
+# if no version is specified, use the mainline version
+nginx_version="${1:-$nginx_mainline}"
+
+# pass core count into container for build process
+core_count="$(grep -c ^processor /proc/cpuinfo)"
+
 # if no arguments are passed, display usage info and exit
 if [ "$#" -ne 1 ]; then
-        echo -e "\nUsage: build.sh <version>\n"
-        exit 1
+	echo "No nginx version provided. Falling back to mainline version $nginx_version."
 fi
 
-# first and only argument should be nginx version to build
-version="$1"
+# create docker image
+docker build \
+        --build-arg NGINX_VER="$nginx_version" \
+        --build-arg CORE_COUNT="$core_count" \
+        -t $registry/nginx:$nginx_version \
+        -f Dockerfile .
 
-# set current directory as base directory
-basedir="$(pwd)"
-
-# build docker and copy build artifacts to volume mount
-docker run -it --rm -e "NGINX=$version" -v "$basedir"/artifacts:/build alpine:latest /bin/ash -c "`cat ./scripts/build-nginx-docker.sh`"
-
-# copy nginx binary to image build directory
-cp "$basedir"/artifacts/nginx-"$version" "$basedir"/image/nginx
-
-# create docker run image
-docker build --build-arg version="$version" -t docker.seedno.de/seednode/nginx:"$version" "$basedir"/image/.
-
-# remove nginx binary from image build directory
-rm "$basedir"/image/nginx
-
-# push the image to registry
-docker push docker.seedno.de/seednode/nginx:"$version"
+# if a registry is specified, push to it
+if [ "$registry" != "local" ]; then
+	docker push "$registry"/nginx:"$nginx_version"
+	docker push "$registry"/nginx:latest
+fi
