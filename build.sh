@@ -34,5 +34,4 @@ docker build \
 # if a registry is specified, push to it
 if [ "$registry" != "local" ]; then
 	docker push "$registry"/nginx:"$nginx_version"
-	docker push "$registry"/nginx:latest
 fi
