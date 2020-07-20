@@ -10,6 +10,9 @@ ARG PCRE_VER="8.44"
 RUN curl -L -O "https://cfhcable.dl.sourceforge.net/project/pcre/pcre/$PCRE_VER/pcre-$PCRE_VER.tar.gz"
 RUN tar xzf "/src/pcre/pcre-$PCRE_VER.tar.gz"
 
+# download fancy-index module
+RUN git clone https://github.com/aperezdc/ngx-fancyindex.git /src/ngx-fancyindex
+
 # download nginx source
 WORKDIR /src/nginx
 ARG NGINX_VER
@@ -34,6 +37,7 @@ RUN ./configure --prefix=/usr/share/nginx \
 	--with-pcre="/src/pcre/pcre-$PCRE_VER" \
 	--with-pcre-jit \
 	--with-http_addition_module \
+        --add-module=/src/ngx-fancyindex \
 	--without-http_fastcgi_module \
 	--without-http_uwsgi_module \
 	--without-http_scgi_module \
