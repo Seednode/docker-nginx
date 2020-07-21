@@ -28,7 +28,7 @@ fi
 docker build \
         --build-arg NGINX_VER="$nginx_version" \
         --build-arg CORE_COUNT="$core_count" \
-        -t $registry/nginx:$nginx_version \
+        -t "$registry"/nginx:"$nginx_version" \
         -f Dockerfile .
 
 # if a registry is specified, push to it
