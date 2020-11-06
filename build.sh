@@ -17,7 +17,7 @@ nginx_mainline="$(curl -s 'http://nginx.org/download/' | grep -oP 'href="nginx-\
 nginx_version="${1:-$nginx_mainline}"
 
 # pass core count into container for build process
-core_count="$(grep -c ^processor /proc/cpuinfo)"
+core_count="$(nproc)"
 
 # if no arguments are passed, display usage info and exit
 if [ "$#" -ne 1 ]; then
