@@ -21,7 +21,7 @@ core_count="$(nproc)"
 
 # if no arguments are passed, display usage info and exit
 if [ "$#" -ne 1 ]; then
-	echo "No nginx version provided. Falling back to mainline version $nginx_version."
+  echo "No nginx version provided. Falling back to mainline version $nginx_version."
 fi
 
 # create docker image
