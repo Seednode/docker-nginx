@@ -60,7 +60,7 @@ FROM alpine:latest
 COPY nginx/ /etc/nginx/
 
 # setup nginx folders and files
-RUN adduser www-data -D -H
+RUN adduser www-data -D -H -G www-data
 RUN chown -R www-data:www-data /etc/nginx
 RUN mkdir -p /tmp/nginx/{client,proxy} && chown -R www-data:www-data /tmp/nginx/
 RUN mkdir -p /var/log/nginx && chown -R www-data:www-data /var/log/nginx
