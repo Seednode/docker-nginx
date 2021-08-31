@@ -4,9 +4,6 @@
 # exit if a command fails
 set -o errexit
 
-# exit if required variables aren't set
-set -o nounset
-
 # if no registry is provided, tag image as "local" registry
 registry="${REGISTRY:-local}"
 
