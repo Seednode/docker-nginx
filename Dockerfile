@@ -53,23 +53,26 @@ ARG CORE_COUNT="1"
 RUN make -j"$CORE_COUNT"
 RUN make install
 
-# set up the final container
-FROM alpine:latest
+# setup nginx folders and files
+RUN mkdir -p /tmp/nginx/{client,proxy}
+RUN mkdir -p /var/log/nginx
+RUN mkdir -p /var/www/html
+RUN touch /run/nginx.pid
+RUN mkdir -p /etc/nginx
 
 # copy in default nginx configs
-COPY nginx/ /etc/nginx/
+COPY nginx/ /etc/nginx
 
-# setup nginx folders and files
-RUN adduser www-data -D -H -G www-data
-RUN chown -R www-data:www-data /etc/nginx
-RUN mkdir -p /tmp/nginx/{client,proxy} && chown -R www-data:www-data /tmp/nginx/
-RUN mkdir -p /var/log/nginx && chown -R www-data:www-data /var/log/nginx
-RUN mkdir -p /var/www/html && chown -R www-data:www-data /var/www/html
-RUN touch /run/nginx.pid && chown www-data:www-data /run/nginx.pid
-RUN mkdir -p /etc/nginx 
+# set up the final container
+FROM gcr.io/distroless/static-debian11
 
-# add nginx binary
-COPY --from=nginx /usr/sbin/nginx /usr/sbin/nginx
+# copy files over
+COPY --from=nginx --chown=65532:65532 /tmp/nginx /tmp/nginx
+COPY --from=nginx --chown=65532:65532 /var/log/nginx /var/log/nginx
+COPY --from=nginx --chown=65532:65532 /var/www/html /var/www/html
+COPY --from=nginx --chown=65532:65532 /run/nginx.pid /run/nginx.pid
+COPY --from=nginx --chown=65532:65532 /etc/nginx /etc/nginx
+COPY --from=nginx --chown=65532:65532 /usr/sbin/nginx /usr/sbin/nginx
 
 # configure entrypoint
 ENTRYPOINT ["/usr/sbin/nginx","-g","daemon off;"]

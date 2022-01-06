@@ -14,7 +14,7 @@ nginx_mainline="$(curl -s 'http://nginx.org/download/' | grep -oP 'href="nginx-\
 image_version="${1:-$nginx_mainline}"
 
 # set image name
-image_name="nginx"
+image_name="nginx-distroless"
 
 # pass core count into container for build process
 core_count="$(nproc)"
