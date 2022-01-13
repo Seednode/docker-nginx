@@ -2,7 +2,7 @@
 
 # set up nginx build container
 FROM alpine:latest AS nginx
-RUN apk add gcc g++ git curl make linux-headers tar gzip
+RUN apk add gcc g++ git curl make linux-headers tar gzip upx
 
 # download pcre library
 WORKDIR /src/pcre
@@ -51,6 +51,10 @@ RUN ./configure --prefix=/usr/share/nginx \
 ARG CORE_COUNT="1"
 RUN make -j"$CORE_COUNT"
 RUN make install
+
+# strip and compress nginx binary
+RUN strip /usr/sbin/nginx
+RUN upx -9 /usr/sbin/nginx
 
 # setup nginx folders and files
 RUN mkdir -p /etc/nginx
