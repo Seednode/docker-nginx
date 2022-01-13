@@ -38,7 +38,6 @@ RUN ./configure --prefix=/usr/share/nginx \
                 --with-pcre-jit \
                 --with-http_addition_module \
                 --add-module=/src/ngx-fancyindex \
-                --without-http_fastcgi_module \
                 --without-http_uwsgi_module \
                 --without-http_scgi_module \
                 --without-http_gzip_module \
@@ -54,11 +53,12 @@ RUN make -j"$CORE_COUNT"
 RUN make install
 
 # setup nginx folders and files
+RUN mkdir -p /etc/nginx
+RUN touch /run/nginx.pid
 RUN mkdir -p /tmp/nginx/{client,proxy}
+RUN mkdir -p /usr/share/nginx/fastcgi_temp
 RUN mkdir -p /var/log/nginx
 RUN mkdir -p /var/www/html
-RUN touch /run/nginx.pid
-RUN mkdir -p /etc/nginx
 
 # copy in default nginx configs
 COPY nginx/ /etc/nginx
@@ -67,12 +67,13 @@ COPY nginx/ /etc/nginx
 FROM gcr.io/distroless/static-debian11
 
 # copy files over
+COPY --from=nginx --chown=65532:65532 /etc/nginx /etc/nginx
+COPY --from=nginx --chown=65532:65532 /run/nginx.pid /run/nginx.pid
 COPY --from=nginx --chown=65532:65532 /tmp/nginx /tmp/nginx
+COPY --from=nginx --chown=65532:65532 /usr/sbin/nginx /usr/sbin/nginx
+COPY --from=nginx --chown=65532:65532 /usr/share/nginx/fastcgi_temp /usr/share/nginx/fastcgi_temp
 COPY --from=nginx --chown=65532:65532 /var/log/nginx /var/log/nginx
 COPY --from=nginx --chown=65532:65532 /var/www/html /var/www/html
-COPY --from=nginx --chown=65532:65532 /run/nginx.pid /run/nginx.pid
-COPY --from=nginx --chown=65532:65532 /etc/nginx /etc/nginx
-COPY --from=nginx --chown=65532:65532 /usr/sbin/nginx /usr/sbin/nginx
 
 # configure entrypoint
 ENTRYPOINT ["/usr/sbin/nginx","-g","daemon off;"]
