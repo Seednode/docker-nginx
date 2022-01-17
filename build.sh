@@ -17,7 +17,7 @@ image_version="${1:-$nginx_mainline}"
 image_name="nginx"
 
 # pass core count into container for build process
-core_count="$(nproc)"
+core_count="1"
 
 # if no arguments are passed, display usage info and exit
 if [ "$#" -ne 1 ]; then
