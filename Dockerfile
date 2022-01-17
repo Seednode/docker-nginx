@@ -26,12 +26,10 @@ RUN ./configure --prefix=/usr/share/nginx \
                 --conf-path=/etc/nginx/nginx.conf \
                 --error-log-path=/var/log/nginx/error.log \
                 --http-log-path=/var/log/nginx/access.log \
-                --pid-path=/run/nginx.pid \
+                --pid-path=/tmp/nginx.pid \
                 --lock-path=/run/lock/subsys/nginx \
                 --http-client-body-temp-path=/tmp/nginx/client \
                 --http-proxy-temp-path=/tmp/nginx/proxy \
-                --user=www-data \
-                --group=www-data \
                 --with-threads \
                 --with-file-aio \
                 --with-pcre="/src/pcre/pcre-$PCRE_VER" \
@@ -58,26 +56,33 @@ RUN upx -9 /usr/sbin/nginx
 
 # setup nginx folders and files
 RUN mkdir -p /etc/nginx
-RUN touch /run/nginx.pid
-RUN mkdir -p /tmp/nginx/{client,proxy}
-RUN mkdir -p /usr/share/nginx/fastcgi_temp
-RUN mkdir -p /var/log/nginx
+RUN touch /tmp/nginx.pid
+RUN mkdir -p /tmp/nginx/{client,proxy} && chmod 700 /tmp/nginx/{client,proxy}
+RUN mkdir -p /usr/share/nginx/fastcgi_temp && chmod 700 /usr/share/nginx/fastcgi_temp
+RUN mkdir -p /var/log/nginx && chmod 700 /var/log/nginx
 RUN mkdir -p /var/www/html
 
 # copy in default nginx configs
 COPY nginx/ /etc/nginx
 
 # set up the final container
-FROM gcr.io/distroless/static-debian11
+FROM gcr.io/distroless/static:nonroot
+
+# run as nonroot
+USER nonroot
 
 # copy files over
-COPY --from=nginx --chown=65532:65532 /etc/nginx /etc/nginx
-COPY --from=nginx --chown=65532:65532 /run/nginx.pid /run/nginx.pid
-COPY --from=nginx --chown=65532:65532 /tmp/nginx /tmp/nginx
-COPY --from=nginx --chown=65532:65532 /usr/sbin/nginx /usr/sbin/nginx
-COPY --from=nginx --chown=65532:65532 /usr/share/nginx/fastcgi_temp /usr/share/nginx/fastcgi_temp
-COPY --from=nginx --chown=65532:65532 /var/log/nginx /var/log/nginx
-COPY --from=nginx --chown=65532:65532 /var/www/html /var/www/html
+COPY --from=nginx --chown=nonroot:nonroot /etc/nginx /etc/nginx
+COPY --from=nginx --chown=nonroot:nonroot /tmp/nginx.pid /tmp/nginx.pid
+COPY --from=nginx --chown=nonroot:nonroot /tmp/nginx /tmp/nginx
+COPY --from=nginx --chown=nonroot:nonroot /usr/sbin/nginx /usr/sbin/nginx
+COPY --from=nginx --chown=nonroot:nonroot /usr/share/nginx/fastcgi_temp /usr/share/nginx/fastcgi_temp
+COPY --from=nginx --chown=nonroot:nonroot /var/log/nginx /var/log/nginx
+COPY --from=nginx --chown=nonroot:nonroot /var/www/html /var/www/html
+COPY --chown=nonroot:nonroot html/index.html /var/www/html/index.html
+
+# listen on an unprivileged port
+EXPOSE 8080
 
 # configure entrypoint
 ENTRYPOINT ["/usr/sbin/nginx","-g","daemon off;"]
