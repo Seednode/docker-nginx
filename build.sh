@@ -32,7 +32,7 @@ docker buildx build --build-arg NGINX_VER="${image_version}" \
                     -f Dockerfile . \
                     --load
 
-# push amd64 and arm64 images to remote registry
+# push amd64 and arm images to remote registry
 docker buildx build --platform linux/amd64,linux/arm,linux/arm64 \
                     --build-arg NGINX_VER="${image_version}" \
                     --build-arg CORE_COUNT="${core_count}" \
