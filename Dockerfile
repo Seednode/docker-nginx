@@ -60,14 +60,13 @@ RUN ./configure --prefix=/usr/share/nginx \
                 --without-mail_pop3_module \
                 --without-mail_imap_module \
                 --without-mail_smtp_module \
-                --with-cc-opt="-Wl,--gc-sections -static -static-libgcc -O2 -ffunction-sections -fdata-sections -fPIE -fstack-protector-all -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security" \
-                --with-ld-opt="-static" \
+                --with-cc-opt="-O2 -flto -ffunction-sections -fdata-sections -fPIE -fstack-protector-all -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security" \
+                --with-ld-opt="-Wl,--gc-sections -s -static -static-libgcc" \
     && make -j"$CORE_COUNT" \
     && make install
 
-# strip and compress nginx binary
-RUN strip -s /usr/sbin/nginx \
-    && upx -9 /usr/sbin/nginx
+# compress the nginx binary
+RUN upx --best /usr/sbin/nginx
 
 # setup nginx folders and files
 RUN mkdir -p /etc/nginx \
