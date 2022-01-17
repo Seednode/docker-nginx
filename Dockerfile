@@ -1,8 +1,15 @@
 # multi-stage build for dockerized nginx
 
 # set up nginx build container
-FROM alpine:latest AS nginx
-RUN apk add gcc g++ git curl make linux-headers tar gzip upx
+FROM debian:stable-slim AS nginx
+
+# allow multiarch builds
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT=""
+
+# install dependencies
+RUN apt-get update && apt-get install -y curl g++ gcc git make tar upx
 
 # download pcre library
 WORKDIR /src/pcre

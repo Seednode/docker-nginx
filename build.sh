@@ -14,7 +14,7 @@ nginx_mainline="$(curl -s 'http://nginx.org/download/' | grep -oP 'href="nginx-\
 image_version="${1:-$nginx_mainline}"
 
 # set image name
-image_name="nginx-distroless"
+image_name="nginx"
 
 # pass core count into container for build process
 core_count="$(nproc)"
@@ -24,15 +24,19 @@ if [ "$#" -ne 1 ]; then
   echo "No nginx version provided. Falling back to mainline version ${image_version}."
 fi
 
-# create docker image
-docker build --build-arg NGINX_VER="${image_version}" \
-             --build-arg CORE_COUNT="${core_count}" \
-             -t "${registry}/${image_name}:${image_version}" \
-             $(if [ "${LATEST}" == "yes" ]; then echo "-t ${registry}/${image_name}:latest"; fi) \
-             -f Dockerfile .
+# copy native image to local image repository
+docker buildx build --build-arg NGINX_VER="${image_version}" \
+                    --build-arg CORE_COUNT="${core_count}" \
+                    -t "${registry}/${image_name}:${image_version}" \
+                    $(if [ "${LATEST}" == "yes" ]; then echo "-t ${registry}/${image_name}:latest"; fi) \
+                    -f Dockerfile . \
+                    --load
 
-# if a registry is specified, push to it
-if [ "${registry}" != "local" ]; then
-  docker push "${registry}/${image_name}:${image_version}"
-  $(if [ "${LATEST}" == "yes" ]; then echo "docker push ${registry}/${image_name}:latest"; fi)
-fi
+# push amd64 and arm64 images to remote registry
+docker buildx build --platform linux/amd64,linux/arm,linux/arm64 \
+                    --build-arg NGINX_VER="${image_version}" \
+                    --build-arg CORE_COUNT="${core_count}" \
+                    -t "${registry}/${image_name}:${image_version}" \
+                    $(if [ "${LATEST}" == "yes" ]; then echo "-t ${registry}/${image_name}:latest"; fi) \
+                    -f Dockerfile . \
+                    --push
