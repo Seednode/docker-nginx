@@ -23,7 +23,7 @@ RUN apt-get update \
 WORKDIR /src/pcre
 ARG PCRE_VER=8.44
 RUN curl -L -O "https://cfhcable.dl.sourceforge.net/project/pcre/pcre/$PCRE_VER/pcre-$PCRE_VER.tar.gz" \
-    && tar xzf "/src/pcre/pcre-$PCRE_VER.tar.gz"
+    && tar xzf "/src/pcre/pcre-${PCRE_VER}.tar.gz"
 
 # download fancy-index module
 RUN git clone https://github.com/aperezdc/ngx-fancyindex.git /src/ngx-fancyindex
@@ -31,11 +31,11 @@ RUN git clone https://github.com/aperezdc/ngx-fancyindex.git /src/ngx-fancyindex
 # download nginx source
 WORKDIR /src/nginx
 ARG NGINX_VER
-RUN curl -L -O "http://nginx.org/download/nginx-$NGINX_VER.tar.gz" \
-    && tar xzf "nginx-$NGINX_VER.tar.gz"
+RUN curl -L -O "http://nginx.org/download/nginx-${NGINX_VER}.tar.gz" \
+    && tar xzf "nginx-${NGINX_VER}.tar.gz"
 
 # configure and build nginx
-WORKDIR /src/nginx/nginx-"$NGINX_VER"
+WORKDIR /src/nginx/nginx-"${NGINX_VER}"
 ARG CORE_COUNT
 RUN ./configure --prefix=/usr/share/nginx \
                 --sbin-path=/usr/sbin/nginx \
@@ -62,7 +62,7 @@ RUN ./configure --prefix=/usr/share/nginx \
                 --without-mail_smtp_module \
                 --with-cc-opt="-O2 -flto -ffunction-sections -fdata-sections -fPIE -fstack-protector-all -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security" \
                 --with-ld-opt="-Wl,--gc-sections -s -static -static-libgcc" \
-    && make -j"$CORE_COUNT" \
+    && make -j"${CORE_COUNT}" \
     && make install
 
 # compress the nginx binary
