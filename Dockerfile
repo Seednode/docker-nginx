@@ -70,7 +70,8 @@ RUN upx --best /usr/sbin/nginx
 
 # setup nginx folders and files
 RUN mkdir -p /etc/nginx \
-    && mkdir -p /tmp/nginx/{client,proxy} \
+    && mkdir -p /tmp/nginx/client \
+    && mkdir -p /tmp/nginx/proxy \
     && mkdir -p /usr/share/nginx/fastcgi_temp \
     && mkdir -p /var/log/nginx \
     && mkdir -p /var/www/html \
@@ -79,14 +80,22 @@ RUN mkdir -p /etc/nginx \
 # copy in default nginx configs
 COPY nginx/ /etc/nginx
 
+# copy /etc/passwd from distroless for nonroot user
+FROM gcr.io/distroless/static:nonroot as user
+
 # set up the final container
-FROM gcr.io/distroless/static:nonroot
+FROM scratch 
+
+# copy nonroot user from distroless
+COPY --from=user /etc/passwd /etc/passwd
 
 # run as nonroot
 USER nonroot
 
+# copy in default nginx configs
+COPY --chown=nonroot:nonroot nginx/ /etc/nginx
+
 # copy files over
-COPY --from=nginx --chown=nonroot:nonroot /etc/nginx /etc/nginx
 COPY --from=nginx --chown=nonroot:nonroot /tmp/nginx.pid /tmp/nginx.pid
 COPY --from=nginx --chown=nonroot:nonroot /tmp/nginx /tmp/nginx
 COPY --from=nginx --chown=nonroot:nonroot /usr/sbin/nginx /usr/sbin/nginx
