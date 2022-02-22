@@ -69,40 +69,35 @@ RUN ./configure --prefix=/usr/share/nginx \
 RUN upx --best /usr/sbin/nginx
 
 # setup nginx folders and files
-RUN mkdir -p /etc/nginx \
+RUN touch /tmp/nginx.pid \
     && mkdir -p /tmp/nginx/client \
     && mkdir -p /tmp/nginx/proxy \
+    && chmod -R 700 /tmp/nginx \
     && mkdir -p /usr/share/nginx/fastcgi_temp \
     && mkdir -p /var/log/nginx \
     && mkdir -p /var/www/html \
-    && touch /tmp/nginx.pid
-
-# copy in default nginx configs
-COPY nginx/ /etc/nginx
-
-# copy /etc/passwd from distroless for nonroot user
-FROM gcr.io/distroless/static:nonroot as user
+    && chmod -R 555 /usr
 
 # set up the final container
 FROM scratch 
 
-# copy nonroot user from distroless
-COPY --from=user /etc/passwd /etc/passwd
+# create nonroot user
+COPY passwd /etc/passwd
 
 # run as nonroot
 USER nonroot
 
 # copy in default nginx configs
-COPY --chown=nonroot:nonroot nginx/ /etc/nginx
+COPY nginx/ /etc/nginx
 
 # copy files over
 COPY --from=nginx --chown=nonroot:nonroot /tmp/nginx.pid /tmp/nginx.pid
 COPY --from=nginx --chown=nonroot:nonroot /tmp/nginx /tmp/nginx
-COPY --from=nginx --chown=nonroot:nonroot /usr/sbin/nginx /usr/sbin/nginx
+COPY --from=nginx /usr/sbin/nginx /usr/sbin/nginx
 COPY --from=nginx --chown=nonroot:nonroot /usr/share/nginx/fastcgi_temp /usr/share/nginx/fastcgi_temp
 COPY --from=nginx --chown=nonroot:nonroot /var/log/nginx /var/log/nginx
-COPY --from=nginx --chown=nonroot:nonroot /var/www/html /var/www/html
-COPY --chown=nonroot:nonroot html/index.html /var/www/html/index.html
+COPY --from=nginx /var/www/html /var/www/html
+COPY html/index.html /var/www/html/index.html
 
 # listen on an unprivileged port
 EXPOSE 8080
