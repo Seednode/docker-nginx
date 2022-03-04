@@ -51,6 +51,9 @@ RUN ./configure --prefix=/usr/share/nginx \
                 --with-pcre="/src/pcre/pcre-$PCRE_VER" \
                 --with-pcre-jit \
                 --with-http_addition_module \
+                --with-http_random_index_module \
+                --with-http_stub_status_module \
+                --with-http_sub_module \
                 --add-module=/src/ngx-fancyindex \
                 --without-http_uwsgi_module \
                 --without-http_scgi_module \
