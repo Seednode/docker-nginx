@@ -21,7 +21,7 @@ RUN apt-get update \
 
 # download pcre library
 WORKDIR /src/pcre
-ARG PCRE_VER=8.44
+ARG PCRE_VER=8.45
 RUN curl -L -O "https://cfhcable.dl.sourceforge.net/project/pcre/pcre/$PCRE_VER/pcre-$PCRE_VER.tar.gz" \
     && tar xzf "/src/pcre/pcre-${PCRE_VER}.tar.gz"
 
