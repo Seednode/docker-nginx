@@ -1,12 +1,7 @@
 # multi-stage build for dockerized nginx
 
 # set up nginx build container
-FROM debian:stable-slim AS nginx
-
-# allow multiarch builds
-ARG TARGETOS
-ARG TARGETARCH
-ARG TARGETVARIANT=""
+FROM debian:testing-slim AS nginx
 
 # install dependencies
 RUN apt-get update \

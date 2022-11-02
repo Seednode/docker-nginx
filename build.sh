@@ -33,8 +33,7 @@ docker buildx build --build-arg NGINX_VER="${image_version}" \
                     --load
 
 # push amd64 and arm images to remote registry
-docker buildx build --platform linux/amd64,linux/arm,linux/arm64 \
-                    --build-arg NGINX_VER="${image_version}" \
+docker buildx build --build-arg NGINX_VER="${image_version}" \
                     --build-arg CORE_COUNT="${core_count}" \
                     -t "${registry}/${image_name}:${image_version}" \
                     $(if [ "${LATEST}" == "yes" ]; then echo "-t ${registry}/${image_name}:latest"; fi) \
