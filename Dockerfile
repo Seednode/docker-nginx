@@ -1,18 +1,18 @@
 # multi-stage build for dockerized nginx
 
 # set up nginx build container
-FROM debian:testing-slim AS nginx
+FROM alpine:edge AS nginx
 
 # install dependencies
-RUN apt-get update \
-    && apt-get install -y \
-        curl \
-        g++ \
-        gcc \
-        git \
-        make \
-        tar \
-        upx
+RUN apk add --update-cache \
+    curl \
+    g++ \
+    gcc \
+    git \
+    linux-headers \
+    make \
+    tar \
+    upx
 
 # download pcre library
 WORKDIR /src/pcre
