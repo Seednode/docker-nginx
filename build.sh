@@ -24,7 +24,7 @@ if [ "$#" -ne 1 ]; then
   echo "No nginx version provided. Falling back to mainline version ${image_version}."
 fi
 
-# copy native image to local image repository
+# copy image to local image repository
 docker buildx build --build-arg NGINX_VER="${image_version}" \
                     --build-arg CORE_COUNT="${core_count}" \
                     -t "${registry}/${image_name}:${image_version}" \
@@ -32,7 +32,7 @@ docker buildx build --build-arg NGINX_VER="${image_version}" \
                     -f Dockerfile . \
                     --load
 
-# push amd64 and arm images to remote registry
+# push image to remote registry
 docker buildx build --build-arg NGINX_VER="${image_version}" \
                     --build-arg CORE_COUNT="${core_count}" \
                     -t "${registry}/${image_name}:${image_version}" \
