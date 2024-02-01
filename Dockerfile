@@ -16,9 +16,9 @@ RUN apk add --update-cache \
 
 # download pcre library
 WORKDIR /src/pcre
-ARG PCRE_VER=8.45
-RUN curl -L -O "https://cfhcable.dl.sourceforge.net/project/pcre/pcre/$PCRE_VER/pcre-$PCRE_VER.tar.gz" \
-    && tar xzf "/src/pcre/pcre-${PCRE_VER}.tar.gz"
+ARG PCRE_VER=10.42
+RUN curl -L -O "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$PCRE_VER/pcre2-$PCRE_VER.tar.gz" \
+    && tar xzf "/src/pcre/pcre2-${PCRE_VER}.tar.gz"
 
 # download fancy-index module
 RUN git clone https://github.com/aperezdc/ngx-fancyindex.git /src/ngx-fancyindex
@@ -43,7 +43,8 @@ RUN ./configure --prefix=/usr/share/nginx \
                 --http-proxy-temp-path=/tmp/nginx/proxy \
                 --with-threads \
                 --with-file-aio \
-                --with-pcre="/src/pcre/pcre-$PCRE_VER" \
+                --with-ld-opt='lpcre' \
+                --with-pcre="/src/pcre/pcre2-${PCRE_VER}" \
                 --with-pcre-jit \
                 --with-http_addition_module \
                 --with-http_random_index_module \
