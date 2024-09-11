@@ -16,7 +16,7 @@ RUN apk add --update-cache \
 
 # download pcre library
 WORKDIR /src/pcre
-ARG PCRE_VER=10.43
+ARG PCRE_VER=10.44
 RUN curl -L -O "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE_VER}/pcre2-${PCRE_VER}.tar.gz" \
     && tar xzf "/src/pcre/pcre2-${PCRE_VER}.tar.gz"
 
