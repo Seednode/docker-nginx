@@ -97,6 +97,8 @@ COPY --from=nginx --chown=nonroot:nonroot /usr/share/nginx/fastcgi_temp /usr/sha
 COPY --from=nginx --chown=nonroot:nonroot /var/log/nginx /var/log/nginx
 COPY --from=nginx /var/www/html /var/www/html
 COPY html/index.html /var/www/html/index.html
+COPY fastcgi.conf /etc/nginx/
+COPY fastcgi_params /etc/nginx/
 
 # listen on an unprivileged port
 EXPOSE 8080
