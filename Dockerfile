@@ -47,6 +47,7 @@ RUN ./configure --prefix=/usr/share/nginx \
                 --with-pcre-jit \
                 --with-http_addition_module \
                 --with-http_random_index_module \
+                --with-http_realip_module \
                 --with-http_stub_status_module \
                 --with-http_sub_module \
                 --add-module=/src/ngx-fancyindex \
